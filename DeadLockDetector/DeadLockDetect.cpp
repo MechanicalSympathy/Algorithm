@@ -1,3 +1,5 @@
+// Detect.cpp : Defines the entry point for the console application.
+//
 // DeadLockDetect.cpp : Defines the entry point for the console application.
 //
 
@@ -13,8 +15,8 @@ using namespace std;
 
 class Detector{
 private:
-	map<int,int> occupationTable;
-	map<int,int> waittingTable;
+	multimap<int,int> occupationTable;//res-pro
+	multimap<int,int> waittingTable;//pro-res
 	
 
 public:
@@ -29,23 +31,26 @@ bool Detector::detect(){
 	for(int i=0;i <n;i++) 
        detectresult[i].resize(n);
 	//1.构建依赖关系表
-	for(int w=0;w<waittingTable.size();w++){
-		int ws=waittingTable[w];
-		for(int o=0;o<occupationTable.size();o++){
-			if(ws==occupationTable[o]){
-				detectresult[w][o]=true;
+	multimap<int,int>::const_iterator xstart=waittingTable.begin();
+	multimap<int,int>::const_iterator xend=waittingTable.end();
+	for(;xstart!=xend;xstart++){
+		int xp=xstart->first;
+		int xs=xstart->second;
+		multimap<int,int>::const_iterator ystart=occupationTable.begin();
+		multimap<int,int>::const_iterator yend=occupationTable.end();
+		for(;ystart!=yend;ystart++){
+			int yp=ystart->first;
+			int ys=ystart->second;
+			//cout<<"xp:"<<xp<<"xs:"<<xs<<endl;
+			//cout<<"yp:"<<yp<<"ys:"<<ys<<endl;
+			if(xs==ys){
+				//cout<<"xp:"<<xp<<"yp:"<<yp<<endl;
+				detectresult[xp-1][yp-1]=true;
 			}
 		}
 	}
 
 	//2.检测
-	for(int k=0;k<n;k++){
-		for(int i=0;i<n;i++){
-			for(int j=0;j<n;j++){
-				detectresult[i][j]=	detectresult[i][j]|(detectresult[i][k]&detectresult[k][j]);
-			}
-		}			
-	}
 	cout<<"\t";
 	for(int in=0;in<n;in++){
 		cout<<"["<<in<<"]\t";
@@ -65,16 +70,16 @@ bool Detector::detect(){
 
 void Detector::show(){
 	cout<<"=============资源占用表==========="<<endl;
-	map<int,int>::iterator occupationBegin=occupationTable.begin();
-	map<int,int>::iterator occupationEnd=occupationTable.end();
+	multimap<int,int>::iterator occupationBegin=occupationTable.begin();
+	multimap<int,int>::iterator occupationEnd=occupationTable.end();
 	for(;occupationBegin!=occupationEnd;occupationBegin++){
 		cout<<occupationBegin->first<<"->"<<occupationBegin->second<<endl;
 	}
 	cout<<"=============资源占用表==========="<<endl;
 
 	cout<<"=============资源等待表==========="<<endl;
-	map<int,int>::iterator waittingBegin=waittingTable.begin();
-	map<int,int>::iterator waittingEnd=waittingTable.end();
+	multimap<int,int>::iterator waittingBegin=waittingTable.begin();
+	multimap<int,int>::iterator waittingEnd=waittingTable.end();
 	for(;waittingBegin!=waittingEnd;waittingBegin++){
 		cout<<waittingBegin->first<<"->"<<waittingBegin->second<<endl;
 	}
@@ -91,8 +96,8 @@ void Detector::load(char* occupationTableLocation,char* waittingTableLocation){
 	char occupationbuffer[50];
 	char* occupationpro;
 	char* occupationres;
-	occupationfile.getline(occupationbuffer,50,'\n');
 	while(!occupationfile.eof()){
+		occupationfile.getline(occupationbuffer,50,'\n');
 		occupationpro=strtok(occupationbuffer,occupationdelimit);
 		while(occupationpro!=NULL){
 			occupationres=strtok(NULL,occupationdelimit);
@@ -103,11 +108,12 @@ void Detector::load(char* occupationTableLocation,char* waittingTableLocation){
 				first>>pronum;
 				int resnum;
 				second>>resnum;
-				occupationTable[pronum]=resnum;
+				occupationTable.insert(make_pair(pronum,resnum));
+				//occupationTable[pronum]=resnum;
 			}
 			occupationpro=strtok(NULL,occupationdelimit);
 		}
-		occupationfile.getline(occupationbuffer,50,'\n');
+	
 	}
 	occupationfile.close();
 
@@ -119,8 +125,8 @@ void Detector::load(char* occupationTableLocation,char* waittingTableLocation){
 	char  waittingbuffer[50];
 	char* waittingpro;
 	char* waittingres;
-	waittingfile.getline(waittingbuffer,50,'\n');
 	while(!waittingfile.eof()){
+		waittingfile.getline(waittingbuffer,50,'\n');
 		waittingpro=strtok(waittingbuffer,waittingdelimit);
 		while(waittingpro!=NULL){
 			waittingres=strtok(NULL,waittingdelimit);
@@ -131,11 +137,12 @@ void Detector::load(char* occupationTableLocation,char* waittingTableLocation){
 				first>>pronum;
 				int resnum;
 				second>>resnum;
-				waittingTable[pronum]=resnum;
+				//waittingTable[pronum]=resnum;
+				waittingTable.insert(make_pair(pronum,resnum));
 			}
 			waittingpro=strtok(NULL,waittingdelimit);
 		}
-		waittingfile.getline(waittingbuffer,50,'\n');
+	
 	}
 	waittingfile.close();
 
