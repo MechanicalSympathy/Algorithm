@@ -152,7 +152,7 @@ void Detector::load(char* occupationTableLocation,char* waittingTableLocation){
 int main(int argc, char* argv[])
 {	
 	Detector detector;
-	detector.load("occupationtable.txt","wattingtable.txt");
+	detector.load("occupationtable.txt","waittingtable.txt");
 	detector.show();
 	detector.detect();
 	return 0;
