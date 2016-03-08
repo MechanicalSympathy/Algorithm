@@ -2,38 +2,70 @@
 //
 
 #include "stdafx.h"
-#include<map>
+#include<list>
 #include<iostream>
+#define  memsize 3;
 using namespace std;
+
+class page{
+public:
+	page(int id,int hit){
+		this->id=id;
+		this->hit=hit;
+	}
+	page(){
+	}
+	int id;
+	int hit;
+	bool operator<(const page& p){
+		return hit<p.hit;
+	}
+	bool operator>(const page& p){
+		return hit>p.hit;
+	}
+};
+
 class lfudis{
 private:
-	map<int,int> hitrate;
+	list<page> hitrate;
 public:
 	void dis();
 
 };
+
 void lfudis::dis(){
-	hitrate[23]=10;
-	hitrate[43]=10;
-	hitrate[11]=10;
-	hitrate[4]=10;
-	hitrate[8]=10;
 	int pagenum=0;
 	while(true){
-		cout<<"������ҳ��ţ�"<<endl;
+		cout<<"请输入页面号："<<endl;
 		cin>>pagenum;
-		map<int,int>::const_iterator resultIt=hitrate.find(pagenum);
-		if(resultIt==hitrate.end()){
-			map<int,int>::const_iterator beginIt=hitrate.begin();
-			map<int,int>::const_iterator endIt=hitrate.end();
-			for(;beginIt!=endIt;beginIt++){
-				cout<<beginIt->first<<endl;
+		bool find=false;
+		list<page>::iterator beginIt=	hitrate.begin();
+		list<page>::iterator endIt=	hitrate.end();
+		for(;beginIt!=endIt;beginIt++){
+			if(beginIt->id==pagenum){
+				beginIt->hit++;
+				find=true;
+				break;
 			}
 		}
+		if(!find){
+			page p(pagenum,1);
+			//判断是不是需要调度
+			if(hitrate.size()==3){
+				hitrate.sort();
+				hitrate.pop_front();
+				hitrate.push_back(p);
+			}else{
+				hitrate.push_back(p);
+			}
+		}
+		hitrate.sort();
+		list<page>::iterator showstartIt=hitrate.begin();
+		list<page>::iterator showendIt=	hitrate.end();
+		for(;showstartIt!=showendIt;showstartIt++){
+			cout<<"id:"<<showstartIt->id<<",hit:"<<showstartIt->hit<<endl;
+		}
 	}
-	
-	
-
 }
 
 
